@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Soryx Control Remote</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#05070D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Soryx Remote">
+<style>
+  :root {
+    --bg: #05070D;
+    --surface: #12161F;
+    --surface-2: #1B2130;
+    --border: rgba(79, 140, 255, 0.16);
+    --accent: #3D8BFF;
+    --accent-2: #1FD1FF;
+    --text: #F2F5FA;
+    --text-dim: #7C8798;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    overscroll-behavior: none;
+  }
+  svg { display: block; }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 18px 16px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .status {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-dim);
+    height: 14px;
+    margin-top: -6px;
+  }
+
+  /* header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-logo { width: 42px; height: 42px; border-radius: 10px; }
+  .brand-text h1 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 1px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .brand-text .sub {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .icon-btn:active { background: var(--surface-2); }
+
+  /* generic buttons */
+  .row { display: flex; gap: 10px; }
+  .card-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px 4px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .card-btn:active { background: var(--surface-2); transform: scale(0.97); }
+  .card-btn.accent { color: var(--accent); }
+  .card-btn.accent svg { color: var(--accent); }
+
+  .pill-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 0;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .pill-btn:active { background: var(--surface-2); transform: scale(0.97); }
+  .pill-btn.icon-only { padding: 16px 0; }
+
+  /* dpad */
+  .dpad-outer {
+    position: relative;
+    width: min(300px, 78vw);
+    height: min(300px, 78vw);
+    margin: 10px auto 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 45%, #151b28 0%, #0a0d15 70%);
+    border: 1px solid var(--border);
+    box-shadow: 0 0 40px rgba(61, 139, 255, 0.18), inset 0 0 30px rgba(61, 139, 255, 0.06);
+  }
+  .dpad-btn {
+    position: absolute;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    width: 30%;
+    height: 30%;
+  }
+  .dpad-btn:active svg { opacity: 0.55; }
+  .dpad-btn.up { top: 2%; left: 35%; }
+  .dpad-btn.down { bottom: 2%; left: 35%; }
+  .dpad-btn.left { left: 2%; top: 35%; }
+  .dpad-btn.right { right: 2%; top: 35%; }
+  .dpad-btn svg { width: 30px; height: 30px; color: #C8D3E6; }
+
+  .dpad-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38%;
+    height: 38%;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle at 35% 30%, #5aa0ff, #1c5fe0 70%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 1px;
+    box-shadow: 0 0 30px rgba(61, 139, 255, 0.65), inset 0 2px 6px rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+  }
+  .dpad-center:active { filter: brightness(0.9); }
+
+  /* switch row */
+  .switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .switch-row-left { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+  .switch-row-left svg { width: 20px; height: 20px; color: var(--text); }
+  .toggle {
+    width: 46px;
+    height: 26px;
+    border-radius: 14px;
+    background: #2A3040;
+    position: relative;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle-knob {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s;
+  }
+  .toggle.on .toggle-knob { transform: translateX(20px); }
+
+  /* icons in buttons */
+  .card-btn svg, .pill-btn svg { width: 22px; height: 22px; }
+
+  /* text row */
+  .text-row { display: flex; gap: 10px; }
+  .text-row input {
+    flex: 1.4;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: 14px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    min-width: 0;
+  }
+  .text-row input::placeholder { color: var(--text-dim); }
+  .text-row input:focus { outline: 2px solid var(--accent); }
+  .send-btn {
+    flex: 1;
+    background: linear-gradient(135deg, var(--accent), #2461D6);
+    border: none;
+    border-radius: 16px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .send-btn:active { filter: brightness(0.9); }
+  .send-btn svg { width: 18px; height: 18px; }
+
+  /* expandable numeric row */
+  details.expand {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  details.expand summary {
+    list-style: none;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  details.expand summary::-webkit-details-marker { display: none; }
+  .summary-left { display: flex; align-items: center; gap: 10px; }
+  .summary-left svg { width: 18px; height: 18px; }
+  details.expand[open] summary { border-bottom: 1px solid var(--border); }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 14px;
+  }
+  .keypad button {
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    padding: 12px 0;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .keypad button:active { background: #262d40; }
+
+  /* touchpad overlay */
+  .touch-view {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+  }
+  .touch-view.hidden { display: none; }
+  .touch-header { padding: 14px 16px; }
+  .touch-header .pill-btn { flex: none; padding: 12px 18px; }
+  .touchpad {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    margin: 0 14px 14px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .touchpad-hint {
+    color: var(--text-dim);
+    font-size: 14px;
+    text-align: center;
+    padding: 0 32px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="normalView">
+
+  <div class="header">
+    <div class="brand">
+      <img src="/icon-192.png" class="brand-logo" alt="Soryx">
+      <div class="brand-text">
+        <h1>SORYX</h1>
+        <div class="sub">CONTROL REMOTE</div>
+      </div>
+    </div>
+    <div class="icon-btn" onclick="showInfo()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
+
+  <div class="row">
+    <button class="card-btn accent" onclick="sendKey(26)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.72 0"/></svg>
+      Ligar
+    </button>
+    <button class="card-btn" onclick="sendKey(3)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/><path d="M5 10v11h14V10"/></svg>
+      Início
+    </button>
+    <button class="card-btn" onclick="sendKey(4)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar
+    </button>
+    <button class="card-btn" onclick="sendKey(187)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+      Parar
+    </button>
+  </div>
+
+  <div class="dpad-outer">
+    <button class="dpad-btn up" onclick="sendKey(19)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </button>
+    <button class="dpad-btn left" onclick="sendKey(21)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="dpad-btn right" onclick="sendKey(22)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button class="dpad-btn down" onclick="sendKey(20)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <button class="dpad-center" onclick="sendKey(23)">OK</button>
+  </div>
+
+  <div class="switch-row" id="touchRow" onclick="enterTouchMode()">
+    <div class="switch-row-left">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+      <span>Modo touchpad / mouse</span>
+    </div>
+    <div class="toggle" id="touchToggle"><div class="toggle-knob"></div></div>
+  </div>
+
+  <div class="row">
+    <button class="pill-btn" onclick="sendVolume('down')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="17" y1="12" x2="23" y2="12"/></svg>
+      Vol −
+    </button>
+    <button class="pill-btn" onclick="sendVolume('mute')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+      Mudo
+    </button>
+    <button class="pill-btn" onclick="sendVolume('up')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><line x1="19" y1="12" x2="23" y2="12"/></svg>
+      Vol +
+    </button>
+  </div>
+
+  <div class="row">
+    <button class="pill-btn icon-only" onclick="sendKey(89)">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>
+    </button>
+    <button class="pill-btn icon-only" onclick="sendKey(85)">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 12 12 5 21 5 3"/><rect x="14" y="4" width="3" height="16"/><rect x="19" y="4" width="3" height="16"/></svg>
+    </button>
+    <button class="pill-btn icon-only" onclick="sendKey(90)">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>
+    </button>
+  </div>
+
+  <div class="text-row">
+    <input id="textInput" type="text" placeholder="Digite e envie para a TV" autocomplete="off" autocapitalize="off" autocorrect="off">
+    <button class="send-btn" onclick="sendText()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Enviar
+    </button>
+  </div>
+
+  <div class="row">
+    <button class="pill-btn" onclick="sendKey(67)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+      Apagar
+    </button>
+    <button class="pill-btn" onclick="sendKey(66)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+      Enter
+    </button>
+    <button class="pill-btn" onclick="sendKey(82)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      Menu
+    </button>
+  </div>
+
+  <details class="expand">
+    <summary>
+      <span class="summary-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="10"/><line x1="10" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="14" y2="10"/><line x1="18" y1="10" x2="18" y2="10"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
+        <span>Teclado numérico</span>
+      </span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="9 18 15 12 9 6"/></svg>
+    </summary>
+    <div class="keypad">
+      <button onclick="sendKey(8)">1</button>
+      <button onclick="sendKey(9)">2</button>
+      <button onclick="sendKey(10)">3</button>
+      <button onclick="sendKey(11)">4</button>
+      <button onclick="sendKey(12)">5</button>
+      <button onclick="sendKey(13)">6</button>
+      <button onclick="sendKey(14)">7</button>
+      <button onclick="sendKey(15)">8</button>
+      <button onclick="sendKey(16)">9</button>
+      <button onclick="sendKey(166)">CH −</button>
+      <button onclick="sendKey(7)">0</button>
+      <button onclick="sendKey(167)">CH +</button>
+    </div>
+  </details>
+</div>
+
+<div class="touch-view hidden" id="touchView">
+  <div class="touch-header">
+    <button class="pill-btn" onclick="exitTouchMode()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar ao controle
+    </button>
+  </div>
+  <div class="touchpad" id="touchpad">
+    <div class="touchpad-hint">Arraste o dedo para mover o cursor<br>Toque rápido para clicar</div>
+  </div>
+</div>
+
+<script>
+  const statusEl = document.getElementById('status');
+  let statusTimer = null;
+
+  function flashStatus(msg, isError) {
+    statusEl.textContent = msg;
+    statusEl.style.color = isError ? '#FF6B6B' : 'var(--text-dim)';
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { statusEl.textContent = ''; }, 1200);
+  }
+
+  async function post(path) {
+    try {
+      const res = await fetch(path, { method: 'POST' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+    } catch (e) {
+      flashStatus('Falha ao enviar comando', true);
+    }
+  }
+
+  function sendKey(code) {
+    post('/key?code=' + code);
+  }
+
+  function sendVolume(dir) {
+    post('/volume?dir=' + dir);
+  }
+
+  function sendText() {
+    const input = document.getElementById('textInput');
+    const value = input.value;
+    if (!value) return;
+    post('/text?value=' + encodeURIComponent(value)).then(() => {
+      input.value = '';
+    });
+  }
+
+  function showInfo() {
+    flashStatus(location.host, false);
+  }
+
+  document.getElementById('textInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendText();
+  });
+
+  function enterTouchMode() {
+    document.getElementById('touchToggle').classList.add('on');
+    document.getElementById('normalView').classList.add('hidden');
+    document.getElementById('touchView').classList.remove('hidden');
+  }
+
+  function exitTouchMode() {
+    document.getElementById('touchToggle').classList.remove('on');
+    document.getElementById('touchView').classList.add('hidden');
+    document.getElementById('normalView').classList.remove('hidden');
+  }
+
+  const touchpad = document.getElementById('touchpad');
+  const SENSITIVITY = 1.6;
+  const TAP_MAX_DURATION = 250;
+  const TAP_MAX_MOVE = 8;
+
+  let lastX = 0, lastY = 0, startTime = 0, totalMove = 0;
+  let pendingDx = 0, pendingDy = 0, sendScheduled = false;
+
+  function scheduleMove(dx, dy) {
+    pendingDx += dx;
+    pendingDy += dy;
+    if (sendScheduled) return;
+    sendScheduled = true;
+    setTimeout(() => {
+      const dx0 = pendingDx, dy0 = pendingDy;
+      pendingDx = 0; pendingDy = 0; sendScheduled = false;
+      if (dx0 !== 0 || dy0 !== 0) post('/mouse/move?dx=' + dx0 + '&dy=' + dy0);
+    }, 40);
+  }
+
+  touchpad.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    lastX = t.clientX; lastY = t.clientY;
+    startTime = Date.now();
+    totalMove = 0;
+  }, { passive: true });
+
+  touchpad.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    const dx = Math.round((t.clientX - lastX) * SENSITIVITY);
+    const dy = Math.round((t.clientY - lastY) * SENSITIVITY);
+    totalMove += Math.abs(t.clientX - lastX) + Math.abs(t.clientY - lastY);
+    lastX = t.clientX; lastY = t.clientY;
+    if (dx !== 0 || dy !== 0) scheduleMove(dx, dy);
+    e.preventDefault();
+  }, { passive: false });
+
+  touchpad.addEventListener('touchend', () => {
+    if (totalMove < TAP_MAX_MOVE && (Date.now() - startTime) < TAP_MAX_DURATION) {
+      sendKey(23);
+    }
+  }, { passive: true });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

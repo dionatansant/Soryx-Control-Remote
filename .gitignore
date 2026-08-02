@@ -1,0 +1,21 @@
+# Build outputs
+/app/build/
+/build/
+*.apk
+*.aab
+
+# Gradle / Kotlin
+.gradle/
+.kotlin/
+
+# Local machine config
+local.properties
+
+# Signing (keep the keystore and its credentials out of version control)
+keystore.properties
+/keystore/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
