@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soryx Installer</title>
+<style>
+  :root {
+    --bg: #05070D;
+    --surface: #12161F;
+    --surface-2: #1B2130;
+    --border: rgba(79, 140, 255, 0.16);
+    --accent: #3D8BFF;
+    --text: #F2F5FA;
+    --text-dim: #7C8798;
+    --ok: #35D488;
+    --err: #FF6B6B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header img { width: 40px; height: 40px; border-radius: 10px; }
+  .header h1 { font-size: 18px; margin: 0; font-weight: 800; letter-spacing: 0.5px; }
+  .header .sub { font-size: 11px; color: var(--accent); letter-spacing: 1.5px; font-weight: 600; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .card p.hint { margin: 0; color: var(--text-dim); font-size: 13px; line-height: 1.5; }
+
+  .field-row { display: flex; gap: 10px; }
+  input {
+    flex: 1;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    min-width: 0;
+  }
+  input::placeholder { color: var(--text-dim); }
+  input:focus { outline: 2px solid var(--accent); }
+
+  button {
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary { background: linear-gradient(135deg, var(--accent), #2461D6); color: #fff; }
+  button.primary:disabled { opacity: 0.6; cursor: default; }
+  button.ghost { background: var(--surface-2); color: var(--text); }
+  button:active:not(:disabled) { filter: brightness(0.92); }
+
+  .status {
+    font-size: 13px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--surface-2);
+    display: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .status.show { display: block; }
+  .status.ok { border: 1px solid var(--ok); color: var(--ok); }
+  .status.err { border: 1px solid var(--err); color: var(--err); }
+  .status.pending { border: 1px solid var(--border); color: var(--text-dim); }
+
+  .tv-list { display: flex; flex-direction: column; gap: 10px; }
+  .tv-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-2);
+    border-radius: 12px;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .tv-item .info { display: flex; flex-direction: column; min-width: 0; }
+  .tv-item .info .ip { font-size: 13px; color: var(--text); font-family: monospace; }
+  .tv-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .tv-item .actions button, .tv-item .actions a {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  a.link-btn {
+    background: var(--surface);
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+  }
+  .empty { color: var(--text-dim); font-size: 13px; text-align: center; padding: 8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <img src="/icon.png" alt="Soryx">
+    <div>
+      <h1>SORYX INSTALLER</h1>
+      <div class="sub">INSTALAR NA REDE</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="hint">Digite o IP da TV/box (precisa ter o ADB de rede habilitado nela). O instalador conecta e instala o APK mais recente automaticamente.</p>
+    <div class="field-row">
+      <input id="ipInput" type="text" placeholder="Ex: 192.168.1.148" inputmode="decimal" autocomplete="off">
+      <button class="primary" id="installBtn" onclick="install()">Instalar</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div class="card">
+    <p class="hint" style="margin-bottom:-4px">TVs salvas nesse navegador</p>
+    <div class="tv-list" id="tvList"></div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'soryx_tvs';
+  const statusEl = document.getElementById('status');
+  const ipInput = document.getElementById('ipInput');
+  const installBtn = document.getElementById('installBtn');
+
+  function loadTvs() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function saveTvs(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function rememberTv(ip) {
+    const list = loadTvs();
+    if (!list.includes(ip)) {
+      list.unshift(ip);
+      saveTvs(list);
+    }
+    renderTvs();
+  }
+
+  function removeTv(ip) {
+    saveTvs(loadTvs().filter((x) => x !== ip));
+    renderTvs();
+  }
+
+  function renderTvs() {
+    const list = loadTvs();
+    const container = document.getElementById('tvList');
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty">Nenhuma TV salva ainda</div>';
+      return;
+    }
+    container.innerHTML = list.map((ip) => `
+      <div class="tv-item">
+        <div class="info"><span class="ip">${ip}</span></div>
+        <div class="actions">
+          <a class="link-btn" href="http://${ip}:8080/" target="_blank" rel="noopener">Abrir controle</a>
+          <button class="ghost" onclick="reinstall('${ip}')">Reinstalar</button>
+          <button class="ghost" onclick="removeTv('${ip}')">Remover</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function setStatus(kind, message) {
+    statusEl.className = 'status show ' + kind;
+    statusEl.textContent = message;
+  }
+
+  async function runInstall(ip) {
+    installBtn.disabled = true;
+    setStatus('pending', `Conectando em ${ip} e instalando...`);
+    try {
+      const res = await fetch('/install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setStatus('ok', 'Instalado com sucesso em ' + ip + '.');
+        rememberTv(ip);
+      } else {
+        setStatus('err', 'Falha (' + (data.step || 'install') + '): ' + data.message);
+      }
+    } catch (e) {
+      setStatus('err', 'Erro de rede falando com o instalador local: ' + e);
+    } finally {
+      installBtn.disabled = false;
+    }
+  }
+
+  function install() {
+    const ip = ipInput.value.trim();
+    if (!ip) return;
+    runInstall(ip);
+  }
+
+  function reinstall(ip) {
+    ipInput.value = ip;
+    runInstall(ip);
+  }
+
+  ipInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') install();
+  });
+
+  renderTvs();
+</script>
+</body>
+</html>
