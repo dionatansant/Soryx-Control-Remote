@@ -1,5 +1,5 @@
 const CACHE_NAME = 'soryx-remote-v1';
-const CORE_ASSETS = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const CORE_ASSETS = ['/', '/manual', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

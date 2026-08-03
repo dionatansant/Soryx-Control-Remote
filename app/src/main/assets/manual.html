@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — Soryx Control Remote</title>
+<meta name="theme-color" content="#05070D">
+<style>
+  :root {
+    --bg: #05070D;
+    --surface: #12161F;
+    --surface-2: #1B2130;
+    --border: rgba(79, 140, 255, 0.16);
+    --accent: #3D8BFF;
+    --text: #F2F5FA;
+    --text-dim: #9AA5B4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  svg { display: block; flex-shrink: 0; }
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px 18px 48px;
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    text-decoration: none;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .back-btn svg { width: 16px; height: 16px; }
+  .top h1 {
+    font-size: 15px;
+    margin: 0;
+    color: var(--text-dim);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .intro h2 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+  }
+  .intro p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  h3.section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    margin: 28px 0 12px;
+  }
+
+  .feature-list { display: flex; flex-direction: column; gap: 10px; }
+  .feature {
+    display: flex;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+  .feature .icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .feature .icon svg { width: 19px; height: 19px; }
+  .feature .body h4 {
+    margin: 0 0 3px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .feature .body p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .feature .body code {
+    background: var(--surface-2);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: 12px;
+  }
+
+  .steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .steps li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .steps li strong { color: var(--text); }
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .faq { display: flex; flex-direction: column; gap: 8px; }
+  details.faq-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  details.faq-item summary {
+    list-style: none;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item summary::after {
+    content: '+';
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 400;
+  }
+  details.faq-item[open] summary::after { content: '−'; }
+  details.faq-item p {
+    margin: 0;
+    padding: 0 16px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <a class="back-btn" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar ao controle
+    </a>
+    <h1>MANUAL DO USUÁRIO</h1>
+  </div>
+
+  <div class="intro">
+    <h2>Soryx Control Remote</h2>
+    <p>Esta página documenta tudo o que o controle remoto faz: cada botão, o modo touchpad/mouse, o teclado, e como instalar o controle como aplicativo no seu celular. O controle conversa diretamente com a TV pela rede local — nenhum comando passa pela internet.</p>
+  </div>
+
+  <h3 class="section-title">Ações principais</h3>
+  <div class="feature-list">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.72 0"/></svg></div>
+      <div class="body"><h4>Ligar</h4><p>Envia o comando de energia (power) para a TV — liga, coloca em espera ou abre o menu de energia, dependendo do que a TV/box suporta.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M9 21V12h6v9"/><path d="M5 10v11h14V10"/></svg></div>
+      <div class="body"><h4>Início</h4><p>Volta para a tela inicial (launcher) da TV, saindo do aplicativo ou tela atual.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></div>
+      <div class="body"><h4>Voltar</h4><p>Equivale ao botão "voltar" de um controle físico: sai da tela atual ou fecha um menu aberto.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></div>
+      <div class="body"><h4>Parar</h4><p>Abre a tela de apps recentes / multitarefa da TV (equivalente ao botão de "aplicativos recentes").</p></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Navegação (D-pad)</h3>
+  <div class="feature-list">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></div>
+      <div class="body"><h4>Setas ▲ ▼ ◀ ▶</h4><p>Movem o foco/seleção pela interface da TV, igual às setas de um controle físico.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg></div>
+      <div class="body"><h4>OK (centro)</h4><p>Confirma a seleção atual — o mesmo que apertar o botão central de um controle físico.</p></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Modo touchpad / mouse</h3>
+  <div class="feature-list">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg></div>
+      <div class="body"><h4>Ativar o touchpad</h4><p>Toque no botão "Modo touchpad / mouse" na tela principal do controle. A tela muda para uma área de arrastar em tela cheia.</p></div>
+    </div>
+  </div>
+  <ol class="steps">
+    <li><strong>Arraste o dedo</strong> na área cinza para mover o cursor do mouse na TV. O movimento é relativo: quanto mais você arrasta, mais o cursor anda.</li>
+    <li><strong>Toque rápido</strong> (sem arrastar) para clicar, como um clique esquerdo de mouse.</li>
+    <li>Toque em <strong>"Voltar ao controle"</strong> no topo da tela de touchpad para sair do modo touchpad e voltar ao layout normal — isso não envia nenhum comando para a TV, é só troca de tela no celular.</li>
+  </ol>
+
+  <h3 class="section-title">Volume e mídia</h3>
+  <div class="feature-list">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="17" y1="12" x2="23" y2="12"/></svg></div>
+      <div class="body"><h4>Vol − / Vol + / Mudo</h4><p>Controlam o volume do sistema da TV diretamente (não dependem de nenhum app estar em primeiro plano).</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 12 12 5 21 5 3"/><rect x="14" y="4" width="3" height="16"/><rect x="19" y="4" width="3" height="16"/></svg></div>
+      <div class="body"><h4>Retroceder / Play-Pause / Avançar</h4><p>Controlam a reprodução de vídeo/música em apps compatíveis com teclas de mídia (players de vídeo, música, streaming).</p></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Texto e teclado</h3>
+  <div class="feature-list">
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+      <div class="body"><h4>Campo de texto + Enviar</h4><p>Digite no campo e toque em "Enviar" para escrever esse texto direto onde o cursor estiver focado na TV (campo de busca, login, URL, etc). Funciona com letras, números e pontuação comuns.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg></div>
+      <div class="body"><h4>Apagar / Enter / Menu</h4><p><strong>Apagar</strong> remove o caractere anterior no campo focado. <strong>Enter</strong> confirma/quebra linha. <strong>Menu</strong> abre o menu de contexto do app atual, quando disponível.</p></div>
+    </div>
+    <div class="feature">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="14" x2="18" y2="14"/></svg></div>
+      <div class="body"><h4>Teclado numérico</h4><p>Toque em "Teclado numérico" para expandir os números de <code>0</code> a <code>9</code> e os botões de canal (<code>CH −</code> / <code>CH +</code>), úteis para apps de TV ao vivo ou digitar PINs.</p></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Instalar como aplicativo no celular</h3>
+  <p style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-top:-4px">O controle é uma PWA (web app instalável) — depois de instalado, abre em tela cheia como um aplicativo normal, com ícone na tela inicial.</p>
+  <ol class="steps">
+    <li><strong>Android (Chrome):</strong> abra o controle pelo link/QR code, toque no menu (⋮) do navegador e escolha <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar app"</strong>.</li>
+    <li><strong>iPhone (Safari):</strong> abra o controle, toque no ícone de compartilhar e escolha <strong>"Adicionar à Tela de Início"</strong>.</li>
+  </ol>
+
+  <h3 class="section-title">Perguntas frequentes</h3>
+  <div class="faq">
+    <details class="faq-item">
+      <summary>Os botões demoram para responder, o que fazer?</summary>
+      <p>O controle injeta os comandos direto na TV sem depender da internet — se estiver lento, confira se o celular está na mesma rede Wi-Fi da TV. Reiniciar a TV também reinicia o serviço que processa os comandos.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Preciso abrir o app na TV toda vez que ligar ela?</summary>
+      <p>Não — o controle sobe sozinho quando a TV liga. Só é preciso abrir o app manualmente se quiser ver o QR code de novo para conectar um novo celular.</p>
+    </details>
+    <details class="faq-item">
+      <summary>O texto que digito não aparece corretamente na TV</summary>
+      <p>O envio de texto funciona bem com letras, números e pontuação comuns. Emojis e caracteres muito especiais podem não ser suportados.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Posso controlar mais de uma TV com o mesmo celular?</summary>
+      <p>Sim — cada TV tem seu próprio endereço na rede. Basta escanear o QR code de cada TV para abrir o controle dela (o navegador guarda o histórico de páginas visitadas).</p>
+    </details>
+    <details class="faq-item">
+      <summary>Só o volume funciona, o resto dos botões não faz nada</summary>
+      <p>Isso acontece em Android TVs "de fábrica" (certificadas, como Philco/outras marcas de loja) que não têm acesso root. Nessas TVs, abra o app na própria TV e toque em <strong>"Ativar acessibilidade (TVs sem root)"</strong> — isso leva direto para Ajustes &gt; Acessibilidade, onde é preciso autorizar o Soryx Control Remote uma única vez. Depois disso, setas, início, voltar e recentes passam a funcionar normalmente. Em caixas com root (a maioria das caixas Android genéricas) isso não é necessário.</p>
+    </details>
+  </div>
+
+  <footer>SORYX CONTROL REMOTE</footer>
+</div>
+</body>
+</html>

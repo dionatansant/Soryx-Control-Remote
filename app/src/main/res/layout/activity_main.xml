@@ -41,4 +41,11 @@
         android:textColor="@color/accent"
         android:textSize="16sp" />
 
+    <Button
+        android:id="@+id/accessibilityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="Ativar acessibilidade (TVs sem root)" />
+
 </LinearLayout>

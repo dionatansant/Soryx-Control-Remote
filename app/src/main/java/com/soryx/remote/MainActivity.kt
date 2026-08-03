@@ -3,6 +3,8 @@ package com.soryx.remote
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -32,5 +34,9 @@ class MainActivity : AppCompatActivity() {
         val url = "http://$ip:${RemoteServerService.PORT}/"
         urlText.text = url
         qrImage.setImageBitmap(QrCodeUtil.generate(url))
+
+        findViewById<Button>(R.id.accessibilityButton).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
     }
 }

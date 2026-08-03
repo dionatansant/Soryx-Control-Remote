@@ -39,6 +39,7 @@ class RemoteHttpServer(
         return try {
             when (uri) {
                 "/" -> serveAsset("remote.html", "text/html")
+                "/manual" -> serveAsset("manual.html", "text/html")
                 "/manifest.json" -> serveAsset("manifest.json", "application/manifest+json")
                 "/sw.js" -> serveAsset("sw.js", "application/javascript")
                 "/icon-192.png" -> serveBinaryAsset("icon-192.png", "image/png")
@@ -70,7 +71,9 @@ class RemoteHttpServer(
         val keyCode = code?.toIntOrNull()
             ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing code")
 
-        if (!InputDaemonClient.sendKeyEvent(keyCode)) {
+        // Rooted boxes (daemon, then su as backup) take priority since they're strictly
+        // more capable; Accessibility only kicks in when neither is available (no su).
+        if (!InputDaemonClient.sendKeyEvent(keyCode) && !SoryxAccessibilityService.tryKeyEvent(keyCode)) {
             InputDaemonLauncher.ensureRunning(context)
             RootShell.exec("input keyevent $keyCode")
         }
@@ -81,7 +84,7 @@ class RemoteHttpServer(
         if (value.isNullOrEmpty()) {
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing value")
         }
-        if (!InputDaemonClient.sendText(value)) {
+        if (!InputDaemonClient.sendText(value) && !SoryxAccessibilityService.tryText(value)) {
             InputDaemonLauncher.ensureRunning(context)
             val escaped = value.replace("\\", "\\\\").replace("'", "'\\''")
             RootShell.exec("input text '$escaped'")

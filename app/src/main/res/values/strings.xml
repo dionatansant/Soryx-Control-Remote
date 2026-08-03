@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Soryx Control Remote</string>
+    <string name="accessibility_service_description">Permite que o Soryx Control Remote envie setas, voltar, início e recentes em TVs sem acesso root (necessário só quando o aparelho não tem root disponível).</string>
 </resources>
