@@ -15,9 +15,11 @@
     --bg: #05070D;
     --surface: #12161F;
     --surface-2: #1B2130;
+    --surface-depth: #04060B;
     --border: rgba(79, 140, 255, 0.16);
     --accent: #3D8BFF;
     --accent-2: #1FD1FF;
+    --accent-depth: #1B4DA6;
     --text: #F2F5FA;
     --text-dim: #7C8798;
   }
@@ -25,20 +27,23 @@
   html, body {
     margin: 0;
     padding: 0;
+    height: 100%;
     background: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none;
     overscroll-behavior: none;
+    overflow: hidden;
   }
   svg { display: block; }
   .wrap {
     max-width: 480px;
     margin: 0 auto;
-    padding: 18px 16px 32px;
+    padding: 14px 16px 20px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 11px;
+    transform-origin: top center;
   }
   .status {
     text-align: center;
@@ -86,8 +91,15 @@
     color: var(--text);
     cursor: pointer;
     text-decoration: none;
+    box-shadow: 0 3px 0 var(--surface-depth), 0 5px 10px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s, background 0.12s;
   }
-  .icon-btn:active { background: var(--surface-2); }
+  .icon-btn:active {
+    background: var(--surface-2);
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--surface-depth), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
   .icon-btn svg { width: 20px; height: 20px; }
 
   /* generic buttons */
@@ -102,12 +114,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 14px 4px;
+    gap: 5px;
+    padding: 11px 4px;
     font-size: 12px;
     cursor: pointer;
+    box-shadow: 0 4px 0 var(--surface-depth), 0 6px 12px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s, background 0.12s;
   }
-  .card-btn:active { background: var(--surface-2); transform: scale(0.97); }
+  .card-btn:active {
+    background: var(--surface-2);
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--surface-depth), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
   .card-btn.accent { color: var(--accent); }
   .card-btn.accent svg { color: var(--accent); }
 
@@ -121,19 +140,26 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 14px 0;
+    padding: 11px 0;
     font-size: 13px;
     cursor: pointer;
+    box-shadow: 0 4px 0 var(--surface-depth), 0 6px 12px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s, background 0.12s;
   }
-  .pill-btn:active { background: var(--surface-2); transform: scale(0.97); }
-  .pill-btn.icon-only { padding: 16px 0; }
+  .pill-btn:active {
+    background: var(--surface-2);
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--surface-depth), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  .pill-btn.icon-only { padding: 13px 0; }
 
   /* dpad */
   .dpad-outer {
     position: relative;
-    width: min(300px, 78vw);
-    height: min(300px, 78vw);
-    margin: 10px auto 4px;
+    width: min(250px, 62vw);
+    height: min(250px, 62vw);
+    margin: 6px auto 2px;
     border-radius: 50%;
     background: radial-gradient(circle at 50% 45%, #151b28 0%, #0a0d15 70%);
     border: 1px solid var(--border);
@@ -150,7 +176,9 @@
     cursor: pointer;
     width: 30%;
     height: 30%;
+    transition: transform 0.08s;
   }
+  .dpad-btn:active { transform: scale(0.85); }
   .dpad-btn:active svg { opacity: 0.55; }
   .dpad-btn.up { top: 2%; left: 35%; }
   .dpad-btn.down { bottom: 2%; left: 35%; }
@@ -171,10 +199,15 @@
     font-weight: 700;
     font-size: 17px;
     letter-spacing: 1px;
-    box-shadow: 0 0 30px rgba(61, 139, 255, 0.65), inset 0 2px 6px rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 30px rgba(61, 139, 255, 0.65), inset 0 2px 6px rgba(255, 255, 255, 0.25), 0 5px 0 var(--accent-depth);
     cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s, filter 0.08s;
   }
-  .dpad-center:active { filter: brightness(0.9); }
+  .dpad-center:active {
+    filter: brightness(0.9);
+    transform: translate(-50%, calc(-50% + 4px));
+    box-shadow: 0 0 20px rgba(61, 139, 255, 0.5), inset 0 2px 6px rgba(255, 255, 255, 0.2), 0 0 0 var(--accent-depth);
+  }
 
   /* switch row */
   .switch-row {
@@ -184,7 +217,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 14px 16px;
+    padding: 11px 16px;
     cursor: pointer;
   }
   .switch-row-left { display: flex; align-items: center; gap: 12px; font-size: 14px; }
@@ -220,7 +253,7 @@
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--text);
-    padding: 14px 16px;
+    padding: 11px 16px;
     font-size: 14px;
     font-family: inherit;
     min-width: 0;
@@ -240,8 +273,15 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    box-shadow: 0 4px 0 var(--accent-depth), 0 6px 12px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s, filter 0.08s;
   }
-  .send-btn:active { filter: brightness(0.9); }
+  .send-btn:active {
+    filter: brightness(0.9);
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--accent-depth), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
   .send-btn svg { width: 18px; height: 18px; }
 
   /* expandable numeric row */
@@ -253,7 +293,7 @@
   }
   details.expand summary {
     list-style: none;
-    padding: 14px 16px;
+    padding: 11px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -281,8 +321,15 @@
     padding: 12px 0;
     font-size: 15px;
     cursor: pointer;
+    box-shadow: 0 3px 0 var(--surface-depth);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
   }
-  .keypad button:active { background: #262d40; }
+  .keypad button:active {
+    background: #262d40;
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--surface-depth);
+  }
 
   /* touchpad overlay */
   .touch-view {
@@ -314,6 +361,67 @@
     padding: 0 32px;
     line-height: 1.6;
   }
+
+  /* apps overlay */
+  .apps-view {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+  }
+  .apps-view.hidden { display: none; }
+  .apps-header { padding: 14px 16px; }
+  .apps-header .pill-btn { flex: none; padding: 12px 18px; }
+  .apps-grid {
+    flex: 1;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 14px;
+    padding: 4px 16px 24px;
+  }
+  .app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 4px;
+  }
+  .app-item img {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: 0 3px 0 var(--surface-depth), 0 5px 10px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.08s, box-shadow 0.08s;
+  }
+  .app-item:active img {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 var(--surface-depth);
+  }
+  .app-item span {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    max-width: 76px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .apps-status {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 24px 0;
+  }
 </style>
 </head>
 <body>
@@ -328,7 +436,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <a class="icon-btn" href="/manual" aria-label="Documentação e manual do usuário">
+      <a class="icon-btn" href="/documentacao" aria-label="Documentação e manual do usuário">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
       </a>
       <div class="icon-btn" onclick="showInfo()">
@@ -379,6 +487,14 @@
       <span>Modo touchpad / mouse</span>
     </div>
     <div class="toggle" id="touchToggle"><div class="toggle-knob"></div></div>
+  </div>
+
+  <div class="switch-row" onclick="openApps()">
+    <div class="switch-row-left">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Apps instalados</span>
+    </div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--text-dim)"><polyline points="9 18 15 12 9 6"/></svg>
   </div>
 
   <div class="row">
@@ -465,6 +581,18 @@
   </div>
   <div class="touchpad" id="touchpad">
     <div class="touchpad-hint">Arraste o dedo para mover o cursor<br>Toque rápido para clicar</div>
+  </div>
+</div>
+
+<div class="apps-view hidden" id="appsView">
+  <div class="apps-header">
+    <button class="pill-btn" onclick="closeApps()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar ao controle
+    </button>
+  </div>
+  <div class="apps-grid" id="appsGrid">
+    <div class="apps-status">Carregando apps...</div>
   </div>
 </div>
 
@@ -567,6 +695,62 @@
       sendKey(23);
     }
   }, { passive: true });
+
+  function openApps() {
+    document.getElementById('normalView').classList.add('hidden');
+    document.getElementById('appsView').classList.remove('hidden');
+    loadApps();
+  }
+
+  function closeApps() {
+    document.getElementById('appsView').classList.add('hidden');
+    document.getElementById('normalView').classList.remove('hidden');
+    fitToScreen();
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async function loadApps() {
+    const grid = document.getElementById('appsGrid');
+    try {
+      const res = await fetch('/apps');
+      const apps = await res.json();
+      if (!apps.length) {
+        grid.innerHTML = '<div class="apps-status">Nenhum app encontrado</div>';
+        return;
+      }
+      grid.innerHTML = apps.map((app) => `
+        <div class="app-item" onclick="launchApp('${app.package}')">
+          <img src="/apps/icon?package=${encodeURIComponent(app.package)}" loading="lazy" alt="">
+          <span>${escapeHtml(app.label)}</span>
+        </div>
+      `).join('');
+    } catch (e) {
+      grid.innerHTML = '<div class="apps-status">Falha ao carregar apps</div>';
+    }
+  }
+
+  function launchApp(pkg) {
+    post('/apps/launch?package=' + encodeURIComponent(pkg));
+    closeApps();
+  }
+
+  function fitToScreen() {
+    const el = document.getElementById('normalView');
+    el.style.transform = 'none';
+    requestAnimationFrame(() => {
+      const height = el.getBoundingClientRect().height;
+      const scale = Math.min(1, (window.innerHeight - 6) / height);
+      el.style.transform = 'scale(' + scale + ')';
+    });
+  }
+
+  window.addEventListener('load', fitToScreen);
+  window.addEventListener('resize', fitToScreen);
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});

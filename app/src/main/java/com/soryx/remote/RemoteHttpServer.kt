@@ -1,10 +1,20 @@
 package com.soryx.remote
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.media.AudioManager
 import android.util.Log
 import fi.iki.elonen.NanoHTTPD
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
 import java.net.ServerSocket
 import java.net.Socket
@@ -39,7 +49,7 @@ class RemoteHttpServer(
         return try {
             when (uri) {
                 "/" -> serveAsset("remote.html", "text/html")
-                "/manual" -> serveAsset("manual.html", "text/html")
+                "/documentacao" -> serveAsset("manual.html", "text/html")
                 "/manifest.json" -> serveAsset("manifest.json", "application/manifest+json")
                 "/sw.js" -> serveAsset("sw.js", "application/javascript")
                 "/icon-192.png" -> serveBinaryAsset("icon-192.png", "image/png")
@@ -48,6 +58,9 @@ class RemoteHttpServer(
                 "/text" -> handleText(params["value"])
                 "/volume" -> handleVolume(params["dir"])
                 "/mouse/move" -> handleMouseMove(params["dx"], params["dy"])
+                "/apps" -> handleApps()
+                "/apps/icon" -> handleAppIcon(params["package"])
+                "/apps/launch" -> handleAppLaunch(params["package"])
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Not found")
             }
         } catch (e: Exception) {
@@ -111,6 +124,72 @@ class RemoteHttpServer(
 
         RootShell.exec("input roll $dx $dy")
         return ok()
+    }
+
+    private fun handleApps(): Response {
+        val pm = context.packageManager
+        val leanback = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
+        var resolved = pm.queryIntentActivities(leanback, 0)
+        if (resolved.isEmpty()) {
+            val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
+            resolved = pm.queryIntentActivities(launcher, 0)
+        }
+
+        val apps = resolved
+            .filter { it.activityInfo.packageName != context.packageName }
+            .distinctBy { it.activityInfo.packageName }
+            .map { it.activityInfo.packageName to it.loadLabel(pm).toString() }
+            .sortedBy { it.second.lowercase() }
+
+        val array = JSONArray()
+        for ((pkg, label) in apps) {
+            array.put(JSONObject().put("package", pkg).put("label", label))
+        }
+        return newFixedLengthResponse(Response.Status.OK, "application/json", array.toString())
+    }
+
+    private fun handleAppIcon(pkg: String?): Response {
+        if (pkg.isNullOrEmpty()) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing package")
+        }
+        return try {
+            val drawable = context.packageManager.getApplicationIcon(pkg)
+            val bytes = drawableToPng(drawable)
+            newFixedLengthResponse(
+                Response.Status.OK, "image/png", ByteArrayInputStream(bytes), bytes.size.toLong()
+            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "Icon not found")
+        }
+    }
+
+    private fun handleAppLaunch(pkg: String?): Response {
+        if (pkg.isNullOrEmpty()) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Missing package")
+        }
+        val pm = context.packageManager
+        val intent = pm.getLeanbackLaunchIntentForPackage(pkg) ?: pm.getLaunchIntentForPackage(pkg)
+            ?: return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "App not launchable")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+        return ok()
+    }
+
+    private fun drawableToPng(drawable: Drawable): ByteArray {
+        val bitmap = if (drawable is BitmapDrawable) {
+            drawable.bitmap
+        } else {
+            val width = drawable.intrinsicWidth.coerceAtLeast(1)
+            val height = drawable.intrinsicHeight.coerceAtLeast(1)
+            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bmp ->
+                val canvas = Canvas(bmp)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+            }
+        }
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
     }
 
     private fun ok(): Response = newFixedLengthResponse(Response.Status.OK, "text/plain", "ok")
