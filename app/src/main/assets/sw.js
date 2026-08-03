@@ -13,6 +13,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only GET requests are safe to serve from cache as a fallback — commands
+  // (POST /key, /text, /apps/launch, ...) must always hit the network live,
+  // never get swallowed by a stale cache lookup.
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
