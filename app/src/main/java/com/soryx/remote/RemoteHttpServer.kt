@@ -176,11 +176,14 @@ class RemoteHttpServer(
     }
 
     private fun drawableToPng(drawable: Drawable): ByteArray {
-        val bitmap = if (drawable is BitmapDrawable) {
+        val bitmap = if (drawable is BitmapDrawable && drawable.bitmap != null) {
             drawable.bitmap
         } else {
-            val width = drawable.intrinsicWidth.coerceAtLeast(1)
-            val height = drawable.intrinsicHeight.coerceAtLeast(1)
+            // AdaptiveIconDrawable (the default for most apps since Android 8) reports
+            // -1 for intrinsic width/height until bounds are set, which used to collapse
+            // this to a 1x1 bitmap — invisible in the UI but still a "successful" request.
+            val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: ICON_SIZE_PX
+            val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: ICON_SIZE_PX
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).also { bmp ->
                 val canvas = Canvas(bmp)
                 drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -196,5 +199,6 @@ class RemoteHttpServer(
 
     companion object {
         private const val TAG = "RemoteHttpServer"
+        private const val ICON_SIZE_PX = 128
     }
 }

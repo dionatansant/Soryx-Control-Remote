@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Soryx Control Remote</string>
     <string name="accessibility_service_description">Permite que o Soryx Control Remote envie setas, voltar, início e recentes em TVs sem acesso root (necessário só quando o aparelho não tem root disponível).</string>
+    <string name="fixed_ip_warning">Configure um IP fixo para esta TV nas configurações de rede. Sem isso, o IP pode mudar e você precisará escanear o QR code novamente.</string>
+    <string name="accessibility_not_granted_warning">Setas e outros botões podem não funcionar nesta TV. Ative a acessibilidade abaixo para habilitá-los.</string>
 </resources>

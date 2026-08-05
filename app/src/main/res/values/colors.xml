@@ -2,6 +2,7 @@
 <resources>
     <color name="background">#0F1115</color>
     <color name="accent">#4F8CFF</color>
+    <color name="warning">#FFB020</color>
     <color name="text_primary">#F5F6FA</color>
     <color name="ic_launcher_background">#0F1115</color>
 </resources>

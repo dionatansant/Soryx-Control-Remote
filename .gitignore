@@ -14,6 +14,8 @@ local.properties
 # Signing (keep the keystore and its credentials out of version control)
 keystore.properties
 /keystore/
+*.keystore
+*.jks
 
 # IDE
 .idea/
