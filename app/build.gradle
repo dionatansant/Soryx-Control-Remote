@@ -14,7 +14,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.soryx.remote"
+        applicationId "soryx.remote.control"
         minSdk 21
         targetSdk 34
         versionCode 1
